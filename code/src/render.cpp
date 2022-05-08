@@ -146,6 +146,9 @@ namespace Object
 	std::vector<glm::vec2> objUVs;
 	std::vector<glm::vec3> objNormals;
 
+	std::vector<glm::vec3> planeVertices;
+	std::vector<glm::vec2> planeUVs;
+	std::vector<glm::vec3> planeNormals;
 
 	// TEXTURES
 	GLuint textureID;
@@ -181,6 +184,8 @@ namespace Object
 	void setup()
 	{
 		bool res = loadObject::loadOBJ("cube.obj", objVertices, objUVs, objNormals);
+
+		res = loadObject::loadOBJ("plane.obj", planeVertices, planeUVs, planeNormals);
 		
 		unsigned char* data = stbi_load("wood.png", &width, &height, &numberOfColorChannels, 0);
 
