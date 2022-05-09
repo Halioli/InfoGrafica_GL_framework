@@ -135,6 +135,8 @@ namespace Object
 {
 	Shader shader("object_vertexShader.vs", "object_fragmentShader.fs", "object_geometryShader.gs");
 
+	glm::vec4 cameraPoint = RenderVars::_cameraPoint;
+
 	//GLuint program;
 	GLuint VAO;
 	GLuint VBO[3];
@@ -183,11 +185,11 @@ namespace Object
 
 	void setup()
 	{
-		bool res = loadObject::loadOBJ("cube.obj", objVertices, objUVs, objNormals);
+		bool res = loadObject::loadOBJ("plane.obj", objVertices, objUVs, objNormals);
 
-		res = loadObject::loadOBJ("plane.obj", planeVertices, planeUVs, planeNormals);
+		//res = loadObject::loadOBJ("plane.obj", planeVertices, planeUVs, planeNormals);
 		
-		unsigned char* data = stbi_load("wood.png", &width, &height, &numberOfColorChannels, 0);
+		unsigned char* data = stbi_load("red.png", &width, &height, &numberOfColorChannels, 0);
 
 		// ==============================================================================================================
 		//Inicialitzar el Shader 
