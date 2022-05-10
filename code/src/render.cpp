@@ -136,6 +136,7 @@ namespace Object
 	Shader shader("object_vertexShader.vs", "object_fragmentShader.fs", "object_geometryShader.gs");
 
 	glm::vec4 cameraPoint = RenderVars::_cameraPoint;
+	glm::mat4 viewProjection = RenderVars::_modelView * RenderVars::_projection;
 
 	//GLuint program;
 	GLuint VAO;

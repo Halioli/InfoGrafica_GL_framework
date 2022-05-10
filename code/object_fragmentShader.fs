@@ -35,6 +35,4 @@ void main() {
 	{
 		discard;
 	}*/
-
-	//out_Color = vec4(fragmentUV, 0, 1);
 }
