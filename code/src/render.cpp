@@ -136,7 +136,7 @@ namespace Object
 	Shader shader("object_vertexShader.vs", "object_fragmentShader.fs", "object_geometryShader.gs");
 
 	glm::vec4 cameraPoint = RenderVars::_cameraPoint;
-	glm::mat4 viewProjection = RenderVars::_modelView * RenderVars::_projection;
+	glm::mat4 viewProjection = RenderVars::_MVP;
 
 	//GLuint program;
 	GLuint VAO;
@@ -235,7 +235,6 @@ namespace Object
 
 	void cleanup()
 	{
-
 		shader.DeleteProgram();
 		glDeleteVertexArrays(1, &VAO);
 
