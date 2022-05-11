@@ -186,7 +186,7 @@ namespace Object
 
 	void setup()
 	{
-		bool res = loadObject::loadOBJ("plane.obj", objVertices, objUVs, objNormals);
+		bool res = loadObject::loadOBJ("planeTest.obj", objVertices, objUVs, objNormals);
 
 		//res = loadObject::loadOBJ("plane.obj", planeVertices, planeUVs, planeNormals);
 		
