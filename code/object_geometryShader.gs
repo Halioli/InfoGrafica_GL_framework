@@ -44,6 +44,12 @@ void main() {
 	fragmentUV = vec2(1, 1);
 	EmitVertex();
 
+	EndPrimitive();
+
+	fragmentNorm = vert_Normal[0];
+	//fragmentPos = FragPos[0];
+	//fragmentUV = fragUVs[0];
+
 	// OLD
 	/*gl_Position = mvpMat * gl_in[0].gl_Position + vec4(0, 0, 0, 1);
 	fragmentNorm = vert_Normal[0];
@@ -61,11 +67,7 @@ void main() {
 	fragmentNorm = vert_Normal[2];
 	fragmentPos = FragPos[2];
 	fragmentUV = fragUVs[2];
-	EmitVertex();*/
+	EmitVertex();
 
-	EndPrimitive();
-
-	fragmentNorm = vert_Normal[0];
-	//fragmentPos = FragPos[0];
-	//fragmentUV = fragUVs[0];
+	EndPrimitive();*/
 }
