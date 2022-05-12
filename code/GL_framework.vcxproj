@@ -140,11 +140,13 @@ xcopy "$(ProjectDir)libs\SDL2.dll" "$(OutDir)" /y /d</Command>
     <ClCompile Include="include\imgui\imgui_impl_sdl_gl3.cpp" />
     <ClCompile Include="src\LoadOBJ.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Models.cpp" />
     <ClCompile Include="src\render.cpp" />
     <ClCompile Include="src\Shaders.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\LoadOBJ.h" />
+    <ClInclude Include="include\Models.h" />
     <ClInclude Include="include\Shaders.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

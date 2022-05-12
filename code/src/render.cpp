@@ -12,6 +12,7 @@
 #include "SDL_timer.h"
 #include "LoadOBJ.h"
 #include "Shaders.h"
+#include "Models.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -134,24 +135,21 @@ void linkProgram(GLuint program)
 namespace Object
 {
 	Shader shader("object_vertexShader.vs", "object_fragmentShader.fs", "object_geometryShader.gs");
+	Model billboardModel("planeTest.obj");
 
 	glm::vec4 cameraPoint = RenderVars::_cameraPoint;
 	glm::mat4 viewProjection = RenderVars::_MVP;
 
 	//GLuint program;
-	GLuint VAO;
-	GLuint VBO[3];
+	//GLuint VAO;
+	//GLuint VBO[3];
 
 	glm::mat4 objMat = glm::mat4(1.f);
 
 	// Read our .obj file
-	std::vector<glm::vec3> objVertices;
-	std::vector<glm::vec2> objUVs;
-	std::vector<glm::vec3> objNormals;
-
-	std::vector<glm::vec3> planeVertices;
-	std::vector<glm::vec2> planeUVs;
-	std::vector<glm::vec3> planeNormals;
+	//std::vector<glm::vec3> objVertices;
+	//std::vector<glm::vec2> objUVs;
+	//std::vector<glm::vec3> objNormals;
 
 	// TEXTURES
 	GLuint textureID;
@@ -186,7 +184,7 @@ namespace Object
 
 	void setup()
 	{
-		bool res = loadObject::loadOBJ("planeTest.obj", objVertices, objUVs, objNormals);
+		//bool res = loadObject::loadOBJ("planeTest.obj", objVertices, objUVs, objNormals);
 
 		//res = loadObject::loadOBJ("plane.obj", planeVertices, planeUVs, planeNormals);
 		
@@ -198,7 +196,8 @@ namespace Object
 
 		//Create the vertex array object
 		//This object maintains the state related to the input of the OpenGL
-		glGenVertexArrays(1, &VAO);
+		billboardModel.CreateVertexArrayObject();
+		/*glGenVertexArrays(1, &VAO);
 		glBindVertexArray(VAO);
 		glGenBuffers(3, VBO);
 
@@ -218,7 +217,7 @@ namespace Object
 		glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
 		glBufferData(GL_ARRAY_BUFFER, objUVs.size() * sizeof(glm::vec2), &objUVs[0], GL_STATIC_DRAW);
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
-		glEnableVertexAttribArray(2);
+		glEnableVertexAttribArray(2);*/
 
 		// TEXTURE
 		glGenTextures(1, &textureID); // Create texture handle
@@ -236,15 +235,15 @@ namespace Object
 	void cleanup()
 	{
 		shader.DeleteProgram();
-		glDeleteVertexArrays(1, &VAO);
 
-		glDeleteBuffers(3, VBO);
+		billboardModel.Cleanup();
 	}
 
 	void render()
 	{
 		shader.UseProgram();
-		glBindVertexArray(VAO);
+
+		billboardModel.BindVertex();
 
 		// Alpha blending
 		glEnable(GL_BLEND);
