@@ -19,6 +19,7 @@ public:
 	void Cleanup();
 	void BindVertex();
 	void SetUniforms(Shader shader, glm::mat4 modelView, glm::mat4 MVP, glm::vec3 fragColor);
+	void SetUniforms(Shader shader, glm::mat4 modelView, glm::mat4 MVP, glm::vec4 cameraPoint, glm::vec3 fragColor);
 	void DrawArrays();
 
 private:

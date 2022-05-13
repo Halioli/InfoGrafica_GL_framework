@@ -134,7 +134,9 @@ void linkProgram(GLuint program)
 ////////////////////////////////////////////////// OBJECT
 namespace Object
 {
-	Shader shader("object_vertexShader.vs", "object_fragmentShader.fs", "object_geometryShader.gs");
+	Shader billboardShader("object_vertexShader.vs", "object_fragmentShader.fs", "object_geometryShader.gs");
+	Shader cubeShader("cube_vertexShader.vs", "cube_fragmentShader.fs", "cube_geometryShader.gs");
+
 	Model billboardModel("planeTest.obj");
 	Model cubeModel("cube.obj");
 
@@ -185,41 +187,16 @@ namespace Object
 
 	void setup()
 	{
-		//bool res = loadObject::loadOBJ("planeTest.obj", objVertices, objUVs, objNormals);
-
-		//res = loadObject::loadOBJ("plane.obj", planeVertices, planeUVs, planeNormals);
-		
 		unsigned char* data = stbi_load("red.png", &width, &height, &numberOfColorChannels, 0);
 
 		// ==============================================================================================================
 		//Inicialitzar el Shader 
-		shader.CreateAllShaders();
+		billboardShader.CreateAllShaders();
+		cubeShader.CreateAllShaders();
 
 		//Create the vertex array object
-		//This object maintains the state related to the input of the OpenGL
 		billboardModel.CreateVertexArrayObject();
 		cubeModel.CreateVertexArrayObject();
-		/*glGenVertexArrays(1, &VAO);
-		glBindVertexArray(VAO);
-		glGenBuffers(3, VBO);
-
-		// Vertex
-		glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
-		glBufferData(GL_ARRAY_BUFFER, objVertices.size() * sizeof(glm::vec3), &objVertices[0], GL_STATIC_DRAW);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0); // , 8 * sizeof(float), (void*)(6 * sizeof(float)))
-		glEnableVertexAttribArray(0);
-
-		// Normals
-		glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
-		glBufferData(GL_ARRAY_BUFFER, objNormals.size() * sizeof(glm::vec3), &objNormals[0], GL_STATIC_DRAW);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
-		glEnableVertexAttribArray(1);
-
-		// UVs
-		glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
-		glBufferData(GL_ARRAY_BUFFER, objUVs.size() * sizeof(glm::vec2), &objUVs[0], GL_STATIC_DRAW);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
-		glEnableVertexAttribArray(2);*/
 
 		// TEXTURE
 		glGenTextures(1, &textureID); // Create texture handle
@@ -236,7 +213,8 @@ namespace Object
 
 	void cleanup()
 	{
-		shader.DeleteProgram();
+		billboardShader.DeleteProgram();
+		cubeShader.DeleteProgram();
 
 		billboardModel.Cleanup();
 		cubeModel.Cleanup();
@@ -244,7 +222,8 @@ namespace Object
 
 	void render()
 	{
-		shader.UseProgram();
+		billboardShader.UseProgram();
+		cubeShader.UseProgram();
 
 		billboardModel.BindVertex();
 		cubeModel.BindVertex();
@@ -256,7 +235,6 @@ namespace Object
 		// Texture
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textureID);
-		glUniform1i(shader.GetUniformLocation("diffuseTexture"), 0);
 
 		// == THIS NEEDS TO BE AT THE FRAGMENT SHADER == //
 		glm::vec4 fragColor;
@@ -313,8 +291,8 @@ namespace Object
 		fragColor = glm::vec4(5.f, 5.f, 5.f, 1.0f);
 		// == THIS NEEDS TO BE AT THE FRAGMENT SHADER == //
 
-		billboardModel.SetUniforms(shader, RenderVars::_modelView, RenderVars::_MVP, fragColor);
-		cubeModel.SetUniforms(shader, RenderVars::_modelView, RenderVars::_MVP, fragColor);
+		billboardModel.SetUniforms(billboardShader, RenderVars::_modelView, RenderVars::_MVP, RenderVars::_cameraPoint, fragColor);
+		cubeModel.SetUniforms(cubeShader, RenderVars::_modelView, RenderVars::_MVP, fragColor);
 		/*glUniformMatrix4fv(shader.GetUniformLocation("objMat"), 1, GL_FALSE, glm::value_ptr(objMat));
 		glUniformMatrix4fv(shader.GetUniformLocation("mv_Mat"), 1, GL_FALSE, glm::value_ptr(RenderVars::_modelView));
 		glUniformMatrix4fv(shader.GetUniformLocation("mvpMat"), 1, GL_FALSE, glm::value_ptr(RenderVars::_MVP));
@@ -323,10 +301,10 @@ namespace Object
 		// Draw shape
 		billboardModel.DrawArrays();
 		cubeModel.DrawArrays();
-		//glDrawArrays(GL_TRIANGLES, 0, objVertices.size());
 
-		shader.UseProgram();
-		//glUseProgram(program);
+		billboardShader.UseProgram();
+		cubeShader.UseProgram();
+
 		glBindVertexArray(0);
 	}
 }
