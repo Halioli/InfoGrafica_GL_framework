@@ -136,9 +136,11 @@ namespace Object
 {
 	Shader billboardShader("object_vertexShader.vs", "object_fragmentShader.fs", "object_geometryShader.gs");
 	Shader cubeShader("cube_vertexShader.vs", "cube_fragmentShader.fs", "cube_geometryShader.gs");
+	Shader explodingShader("cube_vertexShader.vs", "cube_fragmentShader.fs", "cube_geometryShader.gs");
 
 	Model billboardModel("planeTest.obj");
 	Model cubeModel("cube.obj");
+	Model explodingModel("cube.obj");
 
 	glm::vec4 cameraPoint = RenderVars::_cameraPoint;
 	glm::mat4 viewProjection = RenderVars::_MVP;
@@ -193,10 +195,12 @@ namespace Object
 		//Inicialitzar el Shader 
 		billboardShader.CreateAllShaders();
 		cubeShader.CreateAllShaders();
+		explodingShader.CreateAllShaders();
 
 		//Create the vertex array object
 		billboardModel.CreateVertexArrayObject();
 		cubeModel.CreateVertexArrayObject();
+		explodingModel.CreateVertexArrayObject();
 
 		// TEXTURE
 		glGenTextures(1, &textureID); // Create texture handle
@@ -215,18 +219,22 @@ namespace Object
 	{
 		billboardShader.DeleteProgram();
 		cubeShader.DeleteProgram();
+		explodingShader.DeleteProgram();
 
 		billboardModel.Cleanup();
 		cubeModel.Cleanup();
+		explodingModel.Cleanup();
 	}
 
 	void render()
 	{
 		billboardShader.UseProgram();
 		cubeShader.UseProgram();
+		explodingShader.UseProgram();
 
 		billboardModel.BindVertex();
 		cubeModel.BindVertex();
+		explodingModel.BindVertex();
 
 		// Alpha blending
 		glEnable(GL_BLEND);
@@ -293,17 +301,16 @@ namespace Object
 
 		billboardModel.SetUniforms(billboardShader, RenderVars::_modelView, RenderVars::_MVP, RenderVars::_cameraPoint, fragColor);
 		cubeModel.SetUniforms(cubeShader, RenderVars::_modelView, RenderVars::_MVP, fragColor);
-		/*glUniformMatrix4fv(shader.GetUniformLocation("objMat"), 1, GL_FALSE, glm::value_ptr(objMat));
-		glUniformMatrix4fv(shader.GetUniformLocation("mv_Mat"), 1, GL_FALSE, glm::value_ptr(RenderVars::_modelView));
-		glUniformMatrix4fv(shader.GetUniformLocation("mvpMat"), 1, GL_FALSE, glm::value_ptr(RenderVars::_MVP));
-		glUniform4f(shader.GetUniformLocation("color"), fragColor.x, fragColor.y, fragColor.z, 1.0f);*/
+		explodingModel.SetUniforms(cubeShader, RenderVars::_modelView, RenderVars::_MVP, fragColor);
 
 		// Draw shape
 		billboardModel.DrawArrays();
 		cubeModel.DrawArrays();
+		explodingModel.DrawArrays();
 
 		billboardShader.UseProgram();
 		cubeShader.UseProgram();
+		explodingShader.UseProgram();
 
 		glBindVertexArray(0);
 	}
