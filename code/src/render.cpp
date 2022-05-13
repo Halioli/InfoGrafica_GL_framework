@@ -136,6 +136,7 @@ namespace Object
 {
 	Shader shader("object_vertexShader.vs", "object_fragmentShader.fs", "object_geometryShader.gs");
 	Model billboardModel("planeTest.obj");
+	Model cubeModel("cube.obj");
 
 	glm::vec4 cameraPoint = RenderVars::_cameraPoint;
 	glm::mat4 viewProjection = RenderVars::_MVP;
@@ -197,6 +198,7 @@ namespace Object
 		//Create the vertex array object
 		//This object maintains the state related to the input of the OpenGL
 		billboardModel.CreateVertexArrayObject();
+		cubeModel.CreateVertexArrayObject();
 		/*glGenVertexArrays(1, &VAO);
 		glBindVertexArray(VAO);
 		glGenBuffers(3, VBO);
@@ -237,6 +239,7 @@ namespace Object
 		shader.DeleteProgram();
 
 		billboardModel.Cleanup();
+		cubeModel.Cleanup();
 	}
 
 	void render()
@@ -244,6 +247,7 @@ namespace Object
 		shader.UseProgram();
 
 		billboardModel.BindVertex();
+		cubeModel.BindVertex();
 
 		// Alpha blending
 		glEnable(GL_BLEND);
@@ -309,13 +313,17 @@ namespace Object
 		fragColor = glm::vec4(5.f, 5.f, 5.f, 1.0f);
 		// == THIS NEEDS TO BE AT THE FRAGMENT SHADER == //
 
-		glUniformMatrix4fv(shader.GetUniformLocation("objMat"), 1, GL_FALSE, glm::value_ptr(objMat));
+		billboardModel.SetUniforms(shader, RenderVars::_modelView, RenderVars::_MVP, fragColor);
+		cubeModel.SetUniforms(shader, RenderVars::_modelView, RenderVars::_MVP, fragColor);
+		/*glUniformMatrix4fv(shader.GetUniformLocation("objMat"), 1, GL_FALSE, glm::value_ptr(objMat));
 		glUniformMatrix4fv(shader.GetUniformLocation("mv_Mat"), 1, GL_FALSE, glm::value_ptr(RenderVars::_modelView));
 		glUniformMatrix4fv(shader.GetUniformLocation("mvpMat"), 1, GL_FALSE, glm::value_ptr(RenderVars::_MVP));
-		glUniform4f(shader.GetUniformLocation("color"), fragColor.x, fragColor.y, fragColor.z, 1.0f);
+		glUniform4f(shader.GetUniformLocation("color"), fragColor.x, fragColor.y, fragColor.z, 1.0f);*/
 
 		// Draw shape
-		glDrawArrays(GL_TRIANGLES, 0, objVertices.size());
+		billboardModel.DrawArrays();
+		cubeModel.DrawArrays();
+		//glDrawArrays(GL_TRIANGLES, 0, objVertices.size());
 
 		shader.UseProgram();
 		//glUseProgram(program);

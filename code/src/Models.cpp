@@ -49,3 +49,16 @@ void Model::BindVertex()
 {
 	glBindVertexArray(VAO);
 }
+
+void Model::SetUniforms(Shader shader, glm::mat4 modelView, glm::mat4 MVP, glm::vec3 fragColor)
+{
+	glUniformMatrix4fv(shader.GetUniformLocation("objMat"), 1, GL_FALSE, glm::value_ptr(objMat));
+	glUniformMatrix4fv(shader.GetUniformLocation("mv_Mat"), 1, GL_FALSE, glm::value_ptr(modelView));
+	glUniformMatrix4fv(shader.GetUniformLocation("mvpMat"), 1, GL_FALSE, glm::value_ptr(MVP));
+	glUniform4f(shader.GetUniformLocation("color"), fragColor.x, fragColor.y, fragColor.z, 1.0f);
+}
+
+void Model::DrawArrays()
+{
+	glDrawArrays(GL_TRIANGLES, 0, objVertices.size());
+}
