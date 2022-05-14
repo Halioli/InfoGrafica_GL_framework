@@ -135,7 +135,7 @@ void linkProgram(GLuint program)
 namespace Object
 {
 	Shader billboardShader("object_vertexShader.vs", "object_fragmentShader.fs", "object_geometryShader.gs");
-	Shader cubeShader("cube_vertexShader.vs", "cube_fragmentShader.fs", "cube_geometryShader.gs");
+	Shader cubeShader("cube_vertexShader.vs", "exploding_fragmentShader.fs", "cube_geometryShader.gs");
 	Shader explodingShader("exploding_vertexShader.vs", "exploding_fragmentShader.fs", "exploding_geometryShader.gs");
 
 	Model billboardModel("planeTest.obj");
@@ -297,8 +297,9 @@ namespace Object
 		// == THIS NEEDS TO BE AT THE FRAGMENT SHADER == //
 
 		billboardModel.SetUniforms(billboardShader, RenderVars::_modelView, RenderVars::_MVP, RenderVars::_cameraPoint, fragColor);
-		cubeModel.SetUniforms(cubeShader, RenderVars::_modelView, RenderVars::_MVP, fragColor);
-		explodingModel.SetUniforms(explodingShader, RenderVars::_modelView, RenderVars::_MVP, fragColor);
+		//cubeModel.SetUniforms(cubeShader, RenderVars::_modelView, RenderVars::_MVP, fragColor);
+		cubeModel.SetUniforms(explodingShader, RenderVars::_modelView, RenderVars::_MVP, ImGui::GetTime(), fragColor);
+		explodingModel.SetUniforms(explodingShader, RenderVars::_modelView, RenderVars::_MVP, ImGui::GetTime(), fragColor);
 
 		// Draw shape
 		billboardModel.DrawArrays();

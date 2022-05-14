@@ -64,10 +64,23 @@ void Model::SetUniforms(Shader shader, glm::mat4 modelView, glm::mat4 MVP, glm::
 {
 	glUniform1i(shader.GetUniformLocation("diffuseTexture"), 0);
 
+	glUniform3f(shader.GetUniformLocation("cameraPos"), cameraPoint.x, cameraPoint.y, cameraPoint.z);
+
 	glUniformMatrix4fv(shader.GetUniformLocation("objMat"), 1, GL_FALSE, glm::value_ptr(objMat));
 	glUniformMatrix4fv(shader.GetUniformLocation("mv_Mat"), 1, GL_FALSE, glm::value_ptr(modelView));
 	glUniformMatrix4fv(shader.GetUniformLocation("mvpMat"), 1, GL_FALSE, glm::value_ptr(MVP));
-	glUniform3f(shader.GetUniformLocation("cameraPos"), cameraPoint.x, cameraPoint.y, cameraPoint.z);
+	glUniform4f(shader.GetUniformLocation("color"), fragColor.x, fragColor.y, fragColor.z, 1.0f);
+}
+
+void Model::SetUniforms(Shader shader, glm::mat4 modelView, glm::mat4 MVP, float time, glm::vec3 fragColor)
+{
+	glUniform1i(shader.GetUniformLocation("diffuseTexture"), 0);
+
+	glUniform1f(shader.GetUniformLocation("time"), time);
+
+	glUniformMatrix4fv(shader.GetUniformLocation("objMat"), 1, GL_FALSE, glm::value_ptr(objMat));
+	glUniformMatrix4fv(shader.GetUniformLocation("mv_Mat"), 1, GL_FALSE, glm::value_ptr(modelView));
+	glUniformMatrix4fv(shader.GetUniformLocation("mvpMat"), 1, GL_FALSE, glm::value_ptr(MVP));
 	glUniform4f(shader.GetUniformLocation("color"), fragColor.x, fragColor.y, fragColor.z, 1.0f);
 }
 
