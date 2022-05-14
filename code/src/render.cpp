@@ -135,7 +135,7 @@ void linkProgram(GLuint program)
 namespace Object
 {
 	Shader billboardShader("object_vertexShader.vs", "object_fragmentShader.fs", "object_geometryShader.gs");
-	Shader cubeShader("exploding_vertexShader.vs", "exploding_fragmentShader.fs", "exploding_geometryShader.gs");
+	Shader cubeShader("cube_vertexShader.vs", "cube_fragmentShader.fs", "cube_geometryShader.gs");
 	Shader explodingShader("exploding_vertexShader.vs", "exploding_fragmentShader.fs", "exploding_geometryShader.gs");
 
 	Model billboardModel("planeTest.obj");
