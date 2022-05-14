@@ -136,15 +136,12 @@ namespace Object
 {
 	Shader billboardShader("object_vertexShader.vs", "object_fragmentShader.fs", "object_geometryShader.gs");
 	Shader cubeShader("cube_vertexShader.vs", "cube_fragmentShader.fs", "cube_geometryShader.gs");
-	Shader explodingShader("cube_vertexShader.vs", "cube_fragmentShader.fs", "cube_geometryShader.gs");
+	Shader explodingShader("exploding_vertexShader.vs", "exploding_fragmentShader.fs", "exploding_geometryShader.gs");
 
 	Model billboardModel("planeTest.obj");
 	Model cubeModel("cube.obj");
 	Model explodingModel("cube.obj");
-
-	glm::vec4 cameraPoint = RenderVars::_cameraPoint;
-	glm::mat4 viewProjection = RenderVars::_MVP;
-
+	
 	//GLuint program;
 	//GLuint VAO;
 	//GLuint VBO[3];
@@ -230,7 +227,7 @@ namespace Object
 	{
 		billboardShader.UseProgram();
 		cubeShader.UseProgram();
-		explodingShader.UseProgram();
+		//explodingShader.UseProgram();
 
 		billboardModel.BindVertex();
 		cubeModel.BindVertex();
@@ -301,7 +298,7 @@ namespace Object
 
 		billboardModel.SetUniforms(billboardShader, RenderVars::_modelView, RenderVars::_MVP, RenderVars::_cameraPoint, fragColor);
 		cubeModel.SetUniforms(cubeShader, RenderVars::_modelView, RenderVars::_MVP, fragColor);
-		explodingModel.SetUniforms(cubeShader, RenderVars::_modelView, RenderVars::_MVP, fragColor);
+		explodingModel.SetUniforms(explodingShader, RenderVars::_modelView, RenderVars::_MVP, fragColor);
 
 		// Draw shape
 		billboardModel.DrawArrays();
