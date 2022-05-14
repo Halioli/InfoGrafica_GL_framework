@@ -141,3 +141,28 @@ GLuint Shader::GetUniformLocation(char* uniformName)
 {
     return glGetUniformLocation(program, uniformName);
 }
+
+void Shader::SetUniformFloat(char* uniformName, int value)
+{
+    glUniform1f(GetUniformLocation(uniformName), value);
+}
+
+void Shader::SetUniformInt(char* uniformName, int value)
+{
+    glUniform1i(GetUniformLocation(uniformName), value);
+}
+
+void Shader::SetUniformVector3(char* uniformName, glm::vec3 value)
+{
+    glUniform3f(GetUniformLocation(uniformName), value.x, value.y, value.z);
+}
+
+void Shader::SetUniformVector4(char* uniformName, glm::vec3 value)
+{
+    glUniform4f(GetUniformLocation(uniformName), value.x, value.y, value.z, 1.0f);
+}
+
+void Shader::SetUniformMatrix4(char* uniformName, glm::mat4 value)
+{
+    glUniformMatrix4fv(GetUniformLocation(uniformName), 1, GL_FALSE, glm::value_ptr(value));
+}
