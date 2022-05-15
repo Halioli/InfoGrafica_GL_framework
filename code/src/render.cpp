@@ -136,22 +136,11 @@ namespace Object
 {
 	Shader billboardShader("object_vertexShader.vs", "object_fragmentShader.fs", "object_geometryShader.gs");
 	Shader cubeShader("cube_vertexShader.vs", "cube_fragmentShader.fs", "cube_geometryShader.gs");
-	Shader explodingShader("exploding_vertexShader.vs", "exploding_fragmentShader.fs", "exploding_geometryShader.gs");
+	//Shader explodingShader("exploding_vertexShader.vs", "exploding_fragmentShader.fs", "exploding_geometryShader.gs");
 
 	Model billboardModel("planeTest.obj");
-	Model cubeModel("cube.obj");
-	Model explodingModel("cube.obj");
-	
-	//GLuint program;
-	//GLuint VAO;
-	//GLuint VBO[3];
-
-	glm::mat4 objMat = glm::mat4(1.f);
-
-	// Read our .obj file
-	//std::vector<glm::vec3> objVertices;
-	//std::vector<glm::vec2> objUVs;
-	//std::vector<glm::vec3> objNormals;
+	Model cubeModel("newCube.obj");
+	//Model explodingModel("newCube.obj");
 
 	// TEXTURES
 	GLuint textureID;
@@ -186,18 +175,18 @@ namespace Object
 
 	void setup()
 	{
-		unsigned char* data = stbi_load("red.png", &width, &height, &numberOfColorChannels, 0);
+		unsigned char* data = stbi_load("wood.png", &width, &height, &numberOfColorChannels, 0);
 
 		// ==============================================================================================================
 		//Inicialitzar el Shader 
 		billboardShader.CreateAllShaders();
 		cubeShader.CreateAllShaders();
-		explodingShader.CreateAllShaders();
+		//explodingShader.CreateAllShaders();
 
 		//Create the vertex array object
 		billboardModel.CreateVertexArrayObject();
 		cubeModel.CreateVertexArrayObject();
-		explodingModel.CreateVertexArrayObject();
+		//explodingModel.CreateVertexArrayObject();
 
 		// TEXTURE
 		glGenTextures(1, &textureID); // Create texture handle
@@ -216,11 +205,11 @@ namespace Object
 	{
 		billboardShader.DeleteProgram();
 		cubeShader.DeleteProgram();
-		explodingShader.DeleteProgram();
+		//explodingShader.DeleteProgram();
 
 		billboardModel.Cleanup();
 		cubeModel.Cleanup();
-		explodingModel.Cleanup();
+		//explodingModel.Cleanup();
 	}
 
 	void render()
@@ -231,7 +220,7 @@ namespace Object
 
 		billboardModel.BindVertex();
 		cubeModel.BindVertex();
-		explodingModel.BindVertex();
+		//explodingModel.BindVertex();
 
 		// Alpha blending
 		glEnable(GL_BLEND);
@@ -297,18 +286,18 @@ namespace Object
 		// == THIS NEEDS TO BE AT THE FRAGMENT SHADER == //
 
 		billboardModel.SetUniforms(billboardShader, RenderVars::_modelView, RenderVars::_MVP, RenderVars::_cameraPoint, fragColor);
-		//cubeModel.SetUniforms(cubeShader, RenderVars::_modelView, RenderVars::_MVP, fragColor);
-		cubeModel.SetUniforms(explodingShader, RenderVars::_modelView, RenderVars::_MVP, ImGui::GetTime(), fragColor);
-		explodingModel.SetUniforms(explodingShader, RenderVars::_modelView, RenderVars::_MVP, ImGui::GetTime(), fragColor);
+		cubeModel.SetUniforms(cubeShader, RenderVars::_modelView, RenderVars::_MVP, fragColor);
+		//cubeModel.SetUniforms(explodingShader, RenderVars::_modelView, RenderVars::_MVP, ImGui::GetTime(), fragColor);
+		//explodingModel.SetUniforms(explodingShader, RenderVars::_modelView, RenderVars::_MVP, ImGui::GetTime(), fragColor);
 
 		// Draw shape
 		billboardModel.DrawArrays();
 		cubeModel.DrawArrays();
-		explodingModel.DrawArrays();
+		//explodingModel.DrawArrays();
 
 		billboardShader.UseProgram();
 		cubeShader.UseProgram();
-		explodingShader.UseProgram();
+		//explodingShader.UseProgram();
 
 		glBindVertexArray(0);
 	}

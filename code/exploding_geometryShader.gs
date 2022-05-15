@@ -28,21 +28,21 @@ void main() {
 	vec3 normal = GetNormal();
 
 	gl_Position = Explode(gl_in[0].gl_Position, normal);
-	//fragmentNorm = vert_Normal[0];
-	//fragmentPos = FragPos[0];
-	//fragmentUV = fragUVs[0];
+	fragmentNorm = vert_Normal[0];
+	fragmentPos = FragPos[0];
+	fragmentUV = fragUVs[0];
 	EmitVertex();
 
 	gl_Position = Explode(gl_in[1].gl_Position, normal);
-	//fragmentNorm = vert_Normal[1];
-	//fragmentPos = FragPos[1];
-	//fragmentUV = fragUVs[1];
+	fragmentNorm = vert_Normal[1];
+	fragmentPos = FragPos[1];
+	fragmentUV = fragUVs[1];
 	EmitVertex();
 
 	gl_Position = Explode(gl_in[2].gl_Position, normal);
-	//fragmentNorm = vert_Normal[2];
-	//fragmentPos = FragPos[2];
-	//fragmentUV = fragUVs[2];
+	fragmentNorm = vert_Normal[2];
+	fragmentPos = FragPos[2];
+	fragmentUV = fragUVs[2];
 	EmitVertex();
 
 	EndPrimitive();

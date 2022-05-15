@@ -28,7 +28,7 @@ void main() {
 	}*/
 	//
 
-	out_Color = texture(diffuseTexture, fragmentUV) * vec4(color.xyz * dot(fragmentNorm, mv_Mat * vec4(0.0, 1.0, 0.0, 0.0)) + color.xyz * 0.3, 1.0 );
+	out_Color = texture(diffuseTexture, fragmentUV);// * vec4(color.xyz * dot(fragmentNorm, mv_Mat * vec4(0.0, 1.0, 0.0, 0.0)) + color.xyz * 0.3, 1.0 );
 
 	// Remove alpha color
 	/*if (out_Color.a < 0.9)
