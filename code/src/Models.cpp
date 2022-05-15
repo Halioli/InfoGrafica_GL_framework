@@ -3,6 +3,8 @@
 Model::Model(char* objPath)
 {
 	objMat = glm::mat4(1.f);
+	scale = glm::vec3(1.f);
+	location = glm::vec3(0.f);
 
 	bool res = loadObject::loadOBJ(objPath, objVertices, objUVs, objNormals);
 }
@@ -22,7 +24,7 @@ void Model::CreateVertexArrayObject()
 	// Vertex
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
 	glBufferData(GL_ARRAY_BUFFER, objVertices.size() * sizeof(glm::vec3), &objVertices[0], GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0); // , 8 * sizeof(float), (void*)(6 * sizeof(float)))
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);
 
 	// Normals
@@ -50,8 +52,20 @@ void Model::BindVertex()
 	glBindVertexArray(VAO);
 }
 
+void Model::SetScale(glm::vec3 newScale)
+{
+	scale = newScale;
+}
+
+void Model::SetLocation(glm::vec3 newLocation)
+{
+	location = newLocation;
+}
+
 void Model::SetUniforms(Shader shader, glm::mat4 modelView, glm::mat4 MVP, glm::vec3 fragColor)
 {
+	objMat = glm::translate(glm::mat4(), location) * glm::scale(glm::mat4(), scale);
+
 	shader.SetUniformInt("diffuseTexture", 0);
 	shader.SetUniformMatrix4("objMat", objMat);
 	shader.SetUniformMatrix4("mv_Mat", modelView);
@@ -63,25 +77,22 @@ void Model::SetUniforms(Shader shader, glm::mat4 modelView, glm::mat4 MVP, glm::
 {
 	shader.SetUniformVector3("cameraPos", cameraPoint);
 
-	shader.SetUniformInt("diffuseTexture", 0);
-	shader.SetUniformMatrix4("objMat", objMat);
-	shader.SetUniformMatrix4("mv_Mat", modelView);
-	shader.SetUniformMatrix4("mvpMat", MVP);
-	shader.SetUniformVector4("color", fragColor);
+	SetUniforms(shader, modelView, MVP, fragColor);
 }
 
-void Model::SetUniforms(Shader shader, glm::mat4 modelView, glm::mat4 MVP, float time, glm::vec3 fragColor)
+void Model::SetUniforms(Shader shader, glm::mat4 modelView, glm::mat4 MVP, float &time, glm::vec3 fragColor)
 {
 	shader.SetUniformFloat("time", time);
 
-	shader.SetUniformInt("diffuseTexture", 0);
-	shader.SetUniformMatrix4("objMat", objMat);
-	shader.SetUniformMatrix4("mv_Mat", modelView);
-	shader.SetUniformMatrix4("mvpMat", MVP);
-	shader.SetUniformVector4("color", fragColor);
+	SetUniforms(shader, modelView, MVP, fragColor);
 }
 
-void Model::DrawArrays()
+void Model::DrawArraysTriangles()
 {
 	glDrawArrays(GL_TRIANGLES, 0, objVertices.size());
+}
+
+void Model::DrawArraysPoints()
+{
+	glDrawArrays(GL_POINTS, 0, objVertices.size());
 }

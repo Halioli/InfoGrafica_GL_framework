@@ -8,11 +8,13 @@
 #include <glm\gtc\type_ptr.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 
+//#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
 class Shader
 {
 public:
-	Shader(std::string vertexShaderPath, std::string fragmentShaderPath);
-	Shader(std::string vertexShaderPath, std::string fragmentShaderPath, std::string geometryShaderPath);
+	Shader(std::string vertexShaderPath, std::string fragmentShaderPath, std::string geometryShaderPath, char* texturePath, bool fliped);
 	~Shader();
 
 	std::string GetShaderFromPath(std::string fragmentPath);
@@ -22,9 +24,12 @@ public:
 	void DeleteProgram();
 	GLuint GetProgram();
 
+	void GenerateTexture();
+	void ActivateTexture();
+
 	GLuint GetUniformLocation(char* uniformName);
 	void SetUniformInt(char* uniformName, int value);
-	void SetUniformFloat(char* uniformName, int value);
+	void SetUniformFloat(char* uniformName, float value);
 	void SetUniformVector3(char* uniformName, glm::vec3 value);
 	void SetUniformVector4(char* uniformName, glm::vec3 value);
 	void SetUniformMatrix4(char* uniformName, glm::mat4 value);
@@ -35,4 +40,12 @@ private:
 	std::string fragmentShaderSource;
 
 	GLuint program;
+
+
+	// TEXTURES
+	unsigned char* textureData;
+	GLuint textureID;
+	int width = 600,
+		height = 600,
+		numberOfColorChannels = 4;
 };

@@ -35,17 +35,14 @@ void linkProgramShaders(GLuint program)
     }
 }
 
-Shader::Shader(std::string vertexShaderPath, std::string fragmentShaderPath)
-{
-    vertexShaderSource = GetShaderFromPath(vertexShaderPath);
-    fragmentShaderSource = GetShaderFromPath(fragmentShaderPath);
-}
-
-Shader::Shader(std::string vertexShaderPath, std::string fragmentShaderPath, std::string geometryShaderPath)
+Shader::Shader(std::string vertexShaderPath, std::string fragmentShaderPath, std::string geometryShaderPath, char* texturePath, bool fliped)
 {
     vertexShaderSource = GetShaderFromPath(vertexShaderPath);
     geometryShaderSource = GetShaderFromPath(geometryShaderPath);
     fragmentShaderSource = GetShaderFromPath(fragmentShaderPath);
+
+    stbi_set_flip_vertically_on_load(fliped);
+    textureData = stbi_load(texturePath, &width, &height, &numberOfColorChannels, 0);
 }
 
 Shader::~Shader() {}
@@ -137,12 +134,30 @@ GLuint Shader::GetProgram()
     return program;
 }
 
+void Shader::GenerateTexture()
+{
+    // TEXTURE
+    glGenTextures(1, &textureID); // Create texture handle
+    glBindTexture(GL_TEXTURE_2D, textureID); // Bind
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData); // Load data
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); // Configure parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); // Configure parameters
+    stbi_image_free(textureData);
+    //
+}
+
+void Shader::ActivateTexture()
+{
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+}
+
 GLuint Shader::GetUniformLocation(char* uniformName)
 {
     return glGetUniformLocation(program, uniformName);
 }
 
-void Shader::SetUniformFloat(char* uniformName, int value)
+void Shader::SetUniformFloat(char* uniformName, float value)
 {
     glUniform1f(GetUniformLocation(uniformName), value);
 }

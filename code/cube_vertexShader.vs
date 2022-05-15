@@ -6,6 +6,7 @@ in vec4 cameraPoint;
 out vec4 vert_Normal;
 out vec3 FragPos;
 out vec2 fragUVs;
+out vec3 objNormal;
 uniform mat4 objMat;
 uniform mat4 mv_Mat;
 uniform mat4 mvpMat;

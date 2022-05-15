@@ -19,10 +19,15 @@ public:
 	void CreateVertexArrayObject();
 	void Cleanup();
 	void BindVertex();
+
+	void SetScale(glm::vec3 newScale);
+	void SetLocation(glm::vec3 newLocation);
 	void SetUniforms(Shader shader, glm::mat4 modelView, glm::mat4 MVP, glm::vec3 fragColor);
 	void SetUniforms(Shader shader, glm::mat4 modelView, glm::mat4 MVP, glm::vec4 cameraPoint, glm::vec3 fragColor);
-	void SetUniforms(Shader shader, glm::mat4 modelView, glm::mat4 MVP, float time, glm::vec3 fragColor);
-	void DrawArrays();
+	void SetUniforms(Shader shader, glm::mat4 modelView, glm::mat4 MVP, float &time, glm::vec3 fragColor);
+	
+	void DrawArraysTriangles();
+	void DrawArraysPoints();
 
 private:
 	GLuint VAO;
@@ -33,4 +38,6 @@ private:
 	std::vector<glm::vec3> objNormals;
 
 	glm::mat4 objMat;
+	glm::vec3 scale;
+	glm::vec3 location;
 };

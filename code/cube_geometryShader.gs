@@ -5,10 +5,11 @@ layout (triangle_strip, max_vertices = 6) out;
 in vec4 vert_Normal[];
 in vec3 FragPos[];
 in vec2 fragUVs[];
+in vec3 objNormal[];
 out vec4 fragmentNorm;
 out vec3 fragmentPos;
 out vec2 fragmentUV;
-out vec3 billboardVect;
+out vec3 objNorm;
 uniform mat4 mvpMat;
 void main() {
 	gl_Position = mvpMat * gl_in[0].gl_Position + vec4(0, 5, 0, 1);
@@ -30,4 +31,6 @@ void main() {
 	EmitVertex();
 
 	EndPrimitive();
+
+	objNorm = objNormal[0];
 }
