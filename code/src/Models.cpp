@@ -52,6 +52,11 @@ void Model::BindVertex()
 	glBindVertexArray(VAO);
 }
 
+void Model::SetObjMat(glm::mat4 newObjMat)
+{
+	objMat = newObjMat;
+}
+
 void Model::SetScale(glm::vec3 newScale)
 {
 	scale = newScale;

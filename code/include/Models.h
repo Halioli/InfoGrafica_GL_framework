@@ -20,6 +20,7 @@ public:
 	void Cleanup();
 	void BindVertex();
 
+	void SetObjMat(glm::mat4 newObjMat);
 	void SetScale(glm::vec3 newScale);
 	void SetLocation(glm::vec3 newLocation);
 	void SetUniforms(Shader shader, glm::mat4 modelView, glm::mat4 MVP, glm::vec3 fragColor);

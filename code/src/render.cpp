@@ -20,6 +20,8 @@
 GLuint compileShader(const char* shaderStr, GLenum shaderType, const char* name = "");
 void linkProgram(GLuint program);
 
+float camWidth, camHeight;
+
 ///////// fw decl
 namespace ImGui 
 {
@@ -59,6 +61,9 @@ namespace RV = RenderVars;
 
 void GLResize(int width, int height) 
 {
+	camWidth = width;
+	camHeight = height;
+
 	glViewport(0, 0, width, height);
 	if (height != 0) RV::_projection = glm::perspective(RV::FOV, (float)width / (float)height, RV::zNear, RV::zFar);
 	else RV::_projection = glm::perspective(RV::FOV, 0.f, RV::zNear, RV::zFar);
@@ -131,22 +136,76 @@ void linkProgram(GLuint program)
 	}
 }
 
+namespace Framebuffer
+{
+	// == FRAMEBUFFER ==
+	GLuint fbo;
+	GLuint fbo_tex;
+
+	// To draw a scene to a texture, we need a frame buffer:
+	void SetupFBO()
+	{
+		// Setup FBO texture
+		glGenFramebuffers(1, &fbo);
+		// Create texture exactly as before:
+		glGenTextures(1, &fbo_tex);
+		glBindTexture(GL_TEXTURE_2D, fbo_tex);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 800, 800, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+		// If we need a depth or stencil buffer, we do it here
+		// We bind texture (or renderbuffer) to framebuffer
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbo_tex, 0);
+		// If we had depth or stencil, we would do it here.
+	}
+
+	void DrawCubeFBOTex()
+	{
+		// We store the current values in a temporary variable
+		glm::mat4 t_mvp = RenderVars::_MVP;
+		glm::mat4 t_mv = RenderVars::_modelView;
+		// We set up our framebuffer and draw into it
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+		glClearColor(1.f, 1.f, 1.f, 1.f);
+		glViewport(0, 0, 800, 800);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
+		RenderVars::_MVP = RenderVars::_projection;
+		RenderVars::_modelView = glm::mat4(1.f);
+		// Everything you want to draw in your texture should go here
+		glm::mat4 objMat = glm::lookAt(glm::vec3(0.f, 1.5f, 3.5f), glm::vec3(0.f, 1.5f, 0.f), glm::vec3(0.f, 1.f, 0.f));
+		//Object::draw2Cubes();
+
+		// We restore the previous conditions
+		RenderVars::_MVP = t_mvp;
+		RenderVars::_modelView = t_mv;
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		// We set up a texture where to draw our FBO:
+		glViewport(0, 0, camWidth, camHeight);//g_width, g_height);
+		glBindTexture(GL_TEXTURE_2D, fbo_tex);
+		glm::vec3 c1_pos = glm::vec3(-2.f, 0.f, 0.f);
+		//drawCubeAt(c1_pos, glm::vec3(1.0f, 0.2f, 1.f), 0.5f, cubeProgramWithTexture);
+	}
+	// == FRAMEBUFFER ==
+}
+
 ////////////////////////////////////////////////// OBJECT
 namespace Object
 {
 	Shader billboardShader("object_vertexShader.vs", "object_fragmentShader.fs", "object_geometryShader.gs", "tnt.png", true);
 	Shader cubeShader("cube_vertexShader.vs", "cube_fragmentShader.fs", "cube_geometryShader.gs", "wood.png", false);
 	Shader explodingShader("exploding_vertexShader.vs", "exploding_fragmentShader.fs", "exploding_geometryShader.gs", "tnt.png", true);
+	
+	Shader framebufferCubeShader("cube_vertexShader.vs", "cube_fragmentShader.fs", "cube_geometryShader.gs", "wood.png", false);
 
 	Model billboardModel("planeTest.obj");
 	Model cubeModel("newCube.obj");
 	Model explodingModel("newCube.obj");
 
-	// TEXTURES
-	GLuint textureID;
-	int width = 600,
-		height = 600,
-		numberOfColorChannels = 4;
+	Model framebufferCubeModel("newCube.obj");
 
 	// this should be at the fragment shader
 	struct Material {
@@ -180,16 +239,19 @@ namespace Object
 		billboardShader.CreateAllShaders();
 		cubeShader.CreateAllShaders();
 		explodingShader.CreateAllShaders();
+		framebufferCubeShader.CreateAllShaders();
 
 		//Create the vertex array object
 		billboardModel.CreateVertexArrayObject();
 		cubeModel.CreateVertexArrayObject();
 		explodingModel.CreateVertexArrayObject();
+		framebufferCubeModel.CreateVertexArrayObject();
 
 		// Texture
 		billboardShader.GenerateTexture();
 		cubeShader.GenerateTexture();
 		explodingShader.GenerateTexture();
+		framebufferCubeShader.GenerateTexture();
 
 		// Clean
 		glBindVertexArray(0);
@@ -200,10 +262,12 @@ namespace Object
 		billboardShader.DeleteProgram();
 		cubeShader.DeleteProgram();
 		explodingShader.DeleteProgram();
+		framebufferCubeShader.DeleteProgram();
 
 		billboardModel.Cleanup();
 		cubeModel.Cleanup();
 		explodingModel.Cleanup();
+		framebufferCubeModel.Cleanup();
 	}
 
 	void render()
@@ -267,6 +331,21 @@ namespace Object
 		// Alpha blending
 		//glEnable(GL_BLEND);
 		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		// == FRAMEBUFFER CUBE ==
+		framebufferCubeShader.UseProgram();
+		framebufferCubeModel.BindVertex();
+
+		// Texture
+		framebufferCubeShader.ActivateTexture();
+
+		framebufferCubeModel.SetLocation(glm::vec3(10.f, 0.f, -10.f));
+		framebufferCubeModel.SetScale(glm::vec3(0.2f));
+		framebufferCubeModel.SetUniforms(framebufferCubeShader, RenderVars::_modelView, RenderVars::_MVP, fragColor);
+
+		framebufferCubeModel.DrawArraysTriangles();
+		// ==
+
 		
 		// == BILLBOARD ==
 		billboardShader.UseProgram();
