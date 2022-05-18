@@ -162,7 +162,7 @@ namespace Framebuffer
 		// If we had depth or stencil, we would do it here.
 	}
 
-	void DrawCubeFBOTex()
+	void DrawCubeFBOTex(Shader shader, Model model, glm::vec4 fragColor, Shader shader2, Model model2, Shader shader3, Model model3, float time)
 	{
 		// We store the current values in a temporary variable
 		glm::mat4 t_mvp = RenderVars::_MVP;
@@ -179,15 +179,50 @@ namespace Framebuffer
 		glm::mat4 objMat = glm::lookAt(glm::vec3(0.f, 1.5f, 3.5f), glm::vec3(0.f, 1.5f, 0.f), glm::vec3(0.f, 1.f, 0.f));
 		//Object::draw2Cubes();
 
+		shader.UseProgram();
+		model.BindVertex();
+		shader.ActivateTexture();
+		model.SetObjMat(objMat);
+		model.SetScale(glm::vec3(0.2f));
+		model.SetUniforms(shader, RenderVars::_modelView, RenderVars::_MVP, fragColor);
+		model.DrawArraysTriangles();
+
 		// We restore the previous conditions
 		RenderVars::_MVP = t_mvp;
 		RenderVars::_modelView = t_mv;
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		// We set up a texture where to draw our FBO:
-		glViewport(0, 0, camWidth, camHeight);//g_width, g_height);
+		glViewport(0, 0, shader.GetTextureWidth(), shader.GetTextureHeight());//g_width, g_height);
 		glBindTexture(GL_TEXTURE_2D, fbo_tex);
-		glm::vec3 c1_pos = glm::vec3(-2.f, 0.f, 0.f);
+		glm::vec3 c1_pos = glm::vec3(-10.f, 0.f, 0.f);
 		//drawCubeAt(c1_pos, glm::vec3(1.0f, 0.2f, 1.f), 0.5f, cubeProgramWithTexture);
+
+		shader.UseProgram();
+		model.BindVertex();
+		shader.ActivateTexture(fbo_tex);
+		model.SetLocation(c1_pos);
+		model.SetScale(glm::vec3(0.2f));
+		model.SetUniforms(shader, RenderVars::_modelView, RenderVars::_MVP, fragColor);
+		model.DrawArraysTriangles();
+
+		// == CUBE ==
+		shader2.UseProgram();
+		model2.BindVertex();
+		shader2.ActivateTexture();
+		model2.SetScale(glm::vec3(0.3f));
+		model2.SetUniforms(shader2, RenderVars::_modelView, RenderVars::_MVP, fragColor);
+		model2.DrawArraysTriangles();
+		// == ==
+
+		// == EXPLODING ==
+		shader3.UseProgram();
+		model3.BindVertex();
+		shader3.ActivateTexture();
+		model3.SetLocation(glm::vec3(0.f, 0.f, -30.f));
+		model3.SetScale(glm::vec3(0.8f));
+		model3.SetUniforms(shader3, RenderVars::_modelView, RenderVars::_MVP, time, fragColor);
+		model3.DrawArraysTriangles();
+		// == ==
 	}
 	// == FRAMEBUFFER ==
 }
@@ -198,13 +233,11 @@ namespace Object
 	Shader billboardShader("object_vertexShader.vs", "object_fragmentShader.fs", "object_geometryShader.gs", "tnt.png", true);
 	Shader cubeShader("cube_vertexShader.vs", "cube_fragmentShader.fs", "cube_geometryShader.gs", "wood.png", false);
 	Shader explodingShader("exploding_vertexShader.vs", "exploding_fragmentShader.fs", "exploding_geometryShader.gs", "tnt.png", true);
-	
 	Shader framebufferCubeShader("cube_vertexShader.vs", "cube_fragmentShader.fs", "cube_geometryShader.gs", "wood.png", false);
 
 	Model billboardModel("planeTest.obj");
 	Model cubeModel("newCube.obj");
 	Model explodingModel("newCube.obj");
-
 	Model framebufferCubeModel("newCube.obj");
 
 	// this should be at the fragment shader
@@ -234,7 +267,6 @@ namespace Object
 
 	void setup()
 	{
-		// ==============================================================================================================
 		//Inicialitzar el Shader 
 		billboardShader.CreateAllShaders();
 		cubeShader.CreateAllShaders();
@@ -333,7 +365,10 @@ namespace Object
 		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		// == FRAMEBUFFER CUBE ==
-		framebufferCubeShader.UseProgram();
+		framebufferCubeShader.GenerateFramebufferTexture();
+		Framebuffer::DrawCubeFBOTex(framebufferCubeShader, framebufferCubeModel, fragColor, cubeShader, cubeModel, explodingShader, explodingModel, time);
+
+		/*framebufferCubeShader.UseProgram();
 		framebufferCubeModel.BindVertex();
 
 		// Texture
@@ -343,9 +378,8 @@ namespace Object
 		framebufferCubeModel.SetScale(glm::vec3(0.2f));
 		framebufferCubeModel.SetUniforms(framebufferCubeShader, RenderVars::_modelView, RenderVars::_MVP, fragColor);
 
-		framebufferCubeModel.DrawArraysTriangles();
+		framebufferCubeModel.DrawArraysTriangles();*/
 		// ==
-
 		
 		// == BILLBOARD ==
 		billboardShader.UseProgram();
@@ -359,7 +393,7 @@ namespace Object
 		billboardModel.DrawArraysPoints();
 		// == ==
 
-		// == CUBE ==
+		/*// == CUBE ==
 		cubeShader.UseProgram();
 		cubeModel.BindVertex();
 
@@ -384,7 +418,7 @@ namespace Object
 		explodingModel.SetUniforms(explodingShader, RenderVars::_modelView, RenderVars::_MVP, time, fragColor);
 		
 		explodingModel.DrawArraysTriangles();
-		// == ==
+		// == ==*/
 
 		glBindVertexArray(0);
 	}

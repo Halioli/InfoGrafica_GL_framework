@@ -27,12 +27,18 @@ public:
 	void GenerateTexture();
 	void ActivateTexture();
 
+	void ActivateTexture(int newTex);
+	void GenerateFramebufferTexture();
+
 	GLuint GetUniformLocation(char* uniformName);
 	void SetUniformInt(char* uniformName, int value);
 	void SetUniformFloat(char* uniformName, float value);
 	void SetUniformVector3(char* uniformName, glm::vec3 value);
 	void SetUniformVector4(char* uniformName, glm::vec3 value);
 	void SetUniformMatrix4(char* uniformName, glm::mat4 value);
+
+	int GetTextureWidth();
+	int GetTextureHeight();
 
 private:
 	std::string vertexShaderSource;
@@ -41,11 +47,14 @@ private:
 
 	GLuint program;
 
-
 	// TEXTURES
 	unsigned char* textureData;
 	GLuint textureID;
 	int width = 600,
 		height = 600,
 		numberOfColorChannels = 4;
+
+	// FRAMEBUFFER
+	GLuint fbo;
+	GLuint fbo_tex;
 };

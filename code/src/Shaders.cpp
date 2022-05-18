@@ -152,6 +152,31 @@ void Shader::ActivateTexture()
     glBindTexture(GL_TEXTURE_2D, textureID);
 }
 
+void Shader::ActivateTexture(int newTex)
+{
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, newTex);
+}
+
+void Shader::GenerateFramebufferTexture()
+{
+    // Setup FBO texture
+    glGenFramebuffers(1, &fbo);
+    // Create texture exactly as before:
+    glGenTextures(1, &fbo_tex);
+    glBindTexture(GL_TEXTURE_2D, fbo_tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 800, 800, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    // If we need a depth or stencil buffer, we do it here
+    // We bind texture (or renderbuffer) to framebuffer
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbo_tex, 0);
+    // If we had depth or stencil, we would do it here.
+}
+
 GLuint Shader::GetUniformLocation(char* uniformName)
 {
     return glGetUniformLocation(program, uniformName);
@@ -180,4 +205,14 @@ void Shader::SetUniformVector4(char* uniformName, glm::vec3 value)
 void Shader::SetUniformMatrix4(char* uniformName, glm::mat4 value)
 {
     glUniformMatrix4fv(GetUniformLocation(uniformName), 1, GL_FALSE, glm::value_ptr(value));
+}
+
+int Shader::GetTextureWidth()
+{
+    return width;
+}
+
+int Shader::GetTextureHeight()
+{
+    return height;
 }
