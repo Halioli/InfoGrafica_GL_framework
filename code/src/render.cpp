@@ -192,7 +192,7 @@ namespace Framebuffer
 		RenderVars::_modelView = t_mv;
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		// We set up a texture where to draw our FBO:
-		glViewport(0, 0, shader.GetTextureWidth(), shader.GetTextureHeight());//g_width, g_height);
+		glViewport(0, 0, 800, 800); //g_width, g_height);
 		glBindTexture(GL_TEXTURE_2D, fbo_tex);
 		glm::vec3 c1_pos = glm::vec3(-10.f, 0.f, 0.f);
 		//drawCubeAt(c1_pos, glm::vec3(1.0f, 0.2f, 1.f), 0.5f, cubeProgramWithTexture);
@@ -223,6 +223,8 @@ namespace Framebuffer
 		model3.SetUniforms(shader3, RenderVars::_modelView, RenderVars::_MVP, time, fragColor);
 		model3.DrawArraysTriangles();
 		// == ==
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 	// == FRAMEBUFFER ==
 }
@@ -232,6 +234,7 @@ namespace Object
 {
 	Shader billboardShader("object_vertexShader.vs", "object_fragmentShader.fs", "object_geometryShader.gs", "tnt.png", true);
 	Shader cubeShader("cube_vertexShader.vs", "cube_fragmentShader.fs", "cube_geometryShader.gs", "wood.png", false);
+	Shader cubeBorderShader("cube_vertexShader.vs", "cube_fragmentShader.fs", "cube_geometryShader.gs", "red.png", false);
 	Shader explodingShader("exploding_vertexShader.vs", "exploding_fragmentShader.fs", "exploding_geometryShader.gs", "tnt.png", true);
 	Shader framebufferCubeShader("cube_vertexShader.vs", "cube_fragmentShader.fs", "cube_geometryShader.gs", "wood.png", false);
 
@@ -270,6 +273,7 @@ namespace Object
 		//Inicialitzar el Shader 
 		billboardShader.CreateAllShaders();
 		cubeShader.CreateAllShaders();
+		cubeBorderShader.CreateAllShaders();
 		explodingShader.CreateAllShaders();
 		framebufferCubeShader.CreateAllShaders();
 
@@ -282,6 +286,7 @@ namespace Object
 		// Texture
 		billboardShader.GenerateTexture();
 		cubeShader.GenerateTexture();
+		cubeBorderShader.GenerateTexture();
 		explodingShader.GenerateTexture();
 		framebufferCubeShader.GenerateTexture();
 
@@ -293,6 +298,7 @@ namespace Object
 	{
 		billboardShader.DeleteProgram();
 		cubeShader.DeleteProgram();
+		cubeBorderShader.DeleteProgram();
 		explodingShader.DeleteProgram();
 		framebufferCubeShader.DeleteProgram();
 
@@ -368,7 +374,7 @@ namespace Object
 		framebufferCubeShader.GenerateFramebufferTexture();
 		Framebuffer::DrawCubeFBOTex(framebufferCubeShader, framebufferCubeModel, fragColor, cubeShader, cubeModel, explodingShader, explodingModel, time);
 
-		/*framebufferCubeShader.UseProgram();
+		framebufferCubeShader.UseProgram();
 		framebufferCubeModel.BindVertex();
 
 		// Texture
@@ -378,7 +384,7 @@ namespace Object
 		framebufferCubeModel.SetScale(glm::vec3(0.2f));
 		framebufferCubeModel.SetUniforms(framebufferCubeShader, RenderVars::_modelView, RenderVars::_MVP, fragColor);
 
-		framebufferCubeModel.DrawArraysTriangles();*/
+		framebufferCubeModel.DrawArraysTriangles();
 		// ==
 		
 		// == BILLBOARD ==
@@ -393,7 +399,13 @@ namespace Object
 		billboardModel.DrawArraysPoints();
 		// == ==
 
-		/*// == CUBE ==
+		// == CUBE ==
+		glEnable(GL_STENCIL_TEST);
+		glClear(GL_STENCIL_BUFFER_BIT);
+		glStencilFunc(GL_ALWAYS, 1, 0xff);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+		glStencilMask(0xff);
+
 		cubeShader.UseProgram();
 		cubeModel.BindVertex();
 
@@ -404,6 +416,18 @@ namespace Object
 		cubeModel.SetUniforms(cubeShader, RenderVars::_modelView, RenderVars::_MVP, fragColor);
 		
 		cubeModel.DrawArraysTriangles();
+
+		glStencilFunc(GL_GREATER, 1, 0xff);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+		cubeBorderShader.UseProgram();
+		cubeModel.BindVertex();
+		cubeBorderShader.ActivateTexture();
+		cubeModel.SetScale(glm::vec3(0.35f));
+		cubeModel.SetUniforms(cubeShader, RenderVars::_modelView, RenderVars::_MVP, fragColor);
+		cubeModel.DrawArraysTriangles();
+
+		glDisable(GL_STENCIL_TEST);
 		// == ==
 
 		// == EXPLODING ==
@@ -418,7 +442,7 @@ namespace Object
 		explodingModel.SetUniforms(explodingShader, RenderVars::_modelView, RenderVars::_MVP, time, fragColor);
 		
 		explodingModel.DrawArraysTriangles();
-		// == ==*/
+		// == ==
 
 		glBindVertexArray(0);
 	}
