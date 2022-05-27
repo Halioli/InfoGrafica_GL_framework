@@ -192,7 +192,7 @@ namespace Framebuffer
 		RenderVars::_modelView = t_mv;
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		// We set up a texture where to draw our FBO:
-		glViewport(0, 0, 800, 800); //g_width, g_height);
+		glViewport(0, 0, 800, 800); //camWidth, camHeight);
 		glBindTexture(GL_TEXTURE_2D, fbo_tex);
 		glm::vec3 c1_pos = glm::vec3(-10.f, 0.f, 0.f);
 		//drawCubeAt(c1_pos, glm::vec3(1.0f, 0.2f, 1.f), 0.5f, cubeProgramWithTexture);
