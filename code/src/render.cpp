@@ -136,99 +136,6 @@ void linkProgram(GLuint program)
 	}
 }
 
-namespace Framebuffer
-{
-	// == FRAMEBUFFER ==
-	GLuint fbo;
-	GLuint fbo_tex;
-
-	// To draw a scene to a texture, we need a frame buffer:
-	void SetupFBO()
-	{
-		// Setup FBO texture
-		glGenFramebuffers(1, &fbo);
-		// Create texture exactly as before:
-		glGenTextures(1, &fbo_tex);
-		glBindTexture(GL_TEXTURE_2D, fbo_tex);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 800, 800, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-		// If we need a depth or stencil buffer, we do it here
-		// We bind texture (or renderbuffer) to framebuffer
-		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbo_tex, 0);
-		// If we had depth or stencil, we would do it here.
-	}
-
-	void DrawCubeFBOTex(Shader shader, Model model, glm::vec4 fragColor, Shader shader2, Model model2, Shader shader3, Model model3, float time)
-	{
-		// We store the current values in a temporary variable
-		glm::mat4 t_mvp = RenderVars::_MVP;
-		glm::mat4 t_mv = RenderVars::_modelView;
-		// We set up our framebuffer and draw into it
-		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-		glClearColor(1.f, 1.f, 1.f, 1.f);
-		glViewport(0, 0, 800, 800);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glEnable(GL_DEPTH_TEST);
-		RenderVars::_MVP = RenderVars::_projection;
-		RenderVars::_modelView = glm::mat4(1.f);
-		// Everything you want to draw in your texture should go here
-		glm::mat4 objMat = glm::lookAt(glm::vec3(0.f, 1.5f, 3.5f), glm::vec3(0.f, 1.5f, 0.f), glm::vec3(0.f, 1.f, 0.f));
-		//Object::draw2Cubes();
-
-		shader.UseProgram();
-		model.BindVertex();
-		shader.ActivateTexture();
-		model.SetObjMat(objMat);
-		model.SetScale(glm::vec3(0.2f));
-		model.SetUniforms(shader, RenderVars::_modelView, RenderVars::_MVP, fragColor);
-		model.DrawArraysTriangles();
-
-		// We restore the previous conditions
-		RenderVars::_MVP = t_mvp;
-		RenderVars::_modelView = t_mv;
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		// We set up a texture where to draw our FBO:
-		glViewport(0, 0, 800, 800); //camWidth, camHeight);
-		glBindTexture(GL_TEXTURE_2D, fbo_tex);
-		glm::vec3 c1_pos = glm::vec3(-10.f, 0.f, 0.f);
-		//drawCubeAt(c1_pos, glm::vec3(1.0f, 0.2f, 1.f), 0.5f, cubeProgramWithTexture);
-
-		shader.UseProgram();
-		model.BindVertex();
-		shader.ActivateTexture(fbo_tex);
-		model.SetLocation(c1_pos);
-		model.SetScale(glm::vec3(0.2f));
-		model.SetUniforms(shader, RenderVars::_modelView, RenderVars::_MVP, fragColor);
-		model.DrawArraysTriangles();
-
-		// == CUBE ==
-		shader2.UseProgram();
-		model2.BindVertex();
-		shader2.ActivateTexture();
-		model2.SetScale(glm::vec3(0.3f));
-		model2.SetUniforms(shader2, RenderVars::_modelView, RenderVars::_MVP, fragColor);
-		model2.DrawArraysTriangles();
-		// == ==
-
-		// == EXPLODING ==
-		shader3.UseProgram();
-		model3.BindVertex();
-		shader3.ActivateTexture();
-		model3.SetLocation(glm::vec3(0.f, 0.f, -30.f));
-		model3.SetScale(glm::vec3(0.8f));
-		model3.SetUniforms(shader3, RenderVars::_modelView, RenderVars::_MVP, time, fragColor);
-		model3.DrawArraysTriangles();
-		// == ==
-
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	}
-	// == FRAMEBUFFER ==
-}
-
 ////////////////////////////////////////////////// OBJECT
 namespace Object
 {
@@ -236,12 +143,10 @@ namespace Object
 	Shader cubeShader("cube_vertexShader.vs", "cube_fragmentShader.fs", "cube_geometryShader.gs", "wood.png", false);
 	Shader cubeBorderShader("cube_vertexShader.vs", "cube_fragmentShader.fs", "cube_geometryShader.gs", "red.png", false);
 	Shader explodingShader("exploding_vertexShader.vs", "exploding_fragmentShader.fs", "exploding_geometryShader.gs", "tnt.png", true);
-	Shader framebufferCubeShader("cube_vertexShader.vs", "cube_fragmentShader.fs", "cube_geometryShader.gs", "wood.png", false);
 
 	Model billboardModel("planeTest.obj");
 	Model cubeModel("newCube.obj");
 	Model explodingModel("newCube.obj");
-	Model framebufferCubeModel("newCube.obj");
 
 	// this should be at the fragment shader
 	struct Material {
@@ -275,20 +180,17 @@ namespace Object
 		cubeShader.CreateAllShaders();
 		cubeBorderShader.CreateAllShaders();
 		explodingShader.CreateAllShaders();
-		framebufferCubeShader.CreateAllShaders();
 
 		//Create the vertex array object
 		billboardModel.CreateVertexArrayObject();
 		cubeModel.CreateVertexArrayObject();
 		explodingModel.CreateVertexArrayObject();
-		framebufferCubeModel.CreateVertexArrayObject();
 
 		// Texture
 		billboardShader.GenerateTexture();
 		cubeShader.GenerateTexture();
 		cubeBorderShader.GenerateTexture();
 		explodingShader.GenerateTexture();
-		framebufferCubeShader.GenerateTexture();
 
 		// Clean
 		glBindVertexArray(0);
@@ -300,93 +202,18 @@ namespace Object
 		cubeShader.DeleteProgram();
 		cubeBorderShader.DeleteProgram();
 		explodingShader.DeleteProgram();
-		framebufferCubeShader.DeleteProgram();
 
 		billboardModel.Cleanup();
 		cubeModel.Cleanup();
 		explodingModel.Cleanup();
-		framebufferCubeModel.Cleanup();
 	}
 
 	void render()
 	{
-		// == THIS NEEDS TO BE AT THE FRAGMENT SHADER == //
 		glm::vec4 fragColor;
-		/*glm::vec3 lightColor = {9.f, 9.f, 9.f};
-		glm::vec3 objectColor = { 9.f, 9.f, 9.f };
-		glm::vec3 result;
-
-		glm::vec3 fragPos;
-		GLint fragPosUniformLocation = shader.GetUniformLocation("FragPos");
-		glUniform3fv(fragPosUniformLocation, 1, &fragPos[0]);
-
-		// Ambient Lighting
-		float ambientStrength = 0.6f;
-		glm::vec3 ambient = lightColor * material.ambient;
-		light.ambient = ambientStrength * lightColor;
-		//
-
-		// Diffuse Lighting
-		glm::vec3 norm = glm::normalize(objNormals[0]);
-		glm::vec3 lightDir = glm::normalize(-light.direction);
-		float diff = glm::max(glm::dot(norm, lightDir), 0.f);
-		light.diffuse = lightColor * (diff * material.diffuse); //diff * lightColor;
-		//
-
-		// Specular Lighting
-		float specularStrength = 0.5f;
-		glm::vec3 viewPos;
-		glm::vec3 viewDir = glm::normalize(viewPos - fragPos);
-		glm::vec3 reflectDir = glm::reflect(-lightDir, norm);
-		float spec = glm::pow(glm::max(glm::dot(viewDir, reflectDir), 0.f), material.shininess);
-		light.specular = specularStrength * (spec * material.specular);
-		//
-
-		// Point Light
-		float distance = glm::length(light.position - fragPos);
-		float attenuation = 1.f / (light.constant + light.linear *
-							distance + light.quadratic * (distance * distance));
-		light.ambient *= attenuation;
-		light.diffuse *= attenuation;
-		light.specular *= attenuation;
-		//
-
-		// Spot Light
-		float theta = glm::dot(lightDir, glm::normalize(-light.direction));
-
-		if (theta > light.cutOff)
-			result = (light.ambient + light.diffuse + light.specular) * objectColor;
-		else
-			result = light.ambient * objectColor;
-		//
-
-		fragColor = glm::vec4(result, 1.0f);
-		*/
 		fragColor = glm::vec4(5.f, 5.f, 5.f, 1.0f);
-		// == THIS NEEDS TO BE AT THE FRAGMENT SHADER == //
 		float time = ImGui::GetTime();
 
-		// Alpha blending
-		//glEnable(GL_BLEND);
-		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		// == FRAMEBUFFER CUBE ==
-		framebufferCubeShader.GenerateFramebufferTexture();
-		Framebuffer::DrawCubeFBOTex(framebufferCubeShader, framebufferCubeModel, fragColor, cubeShader, cubeModel, explodingShader, explodingModel, time);
-
-		framebufferCubeShader.UseProgram();
-		framebufferCubeModel.BindVertex();
-
-		// Texture
-		framebufferCubeShader.ActivateTexture();
-
-		framebufferCubeModel.SetLocation(glm::vec3(10.f, 0.f, -10.f));
-		framebufferCubeModel.SetScale(glm::vec3(0.2f));
-		framebufferCubeModel.SetUniforms(framebufferCubeShader, RenderVars::_modelView, RenderVars::_MVP, fragColor);
-
-		framebufferCubeModel.DrawArraysTriangles();
-		// ==
-		
 		// == BILLBOARD ==
 		billboardShader.UseProgram();
 		billboardModel.BindVertex();
@@ -445,131 +272,6 @@ namespace Object
 		// == ==
 
 		glBindVertexArray(0);
-	}
-}
-
-////////////////////////////////////////////////// EXERCISE
-namespace Exercise
-{
-	GLuint program;
-	GLuint VAO, VBO;
-
-	float vertices[] = {
-		-0.5f, -0.5f, 0.0f,
-		 0.5f, -0.5f, 0.0f,
-		 0.0f,  0.5f, 0.0f
-	};
-
-	// A vertex shader that assigns a static position to the vertex
-	static const GLchar* vertex_shader_source[] = {
-		"#version 330\n"
-		"layout (location = 0) in vec3 aPos;"
-		"\n"
-		"void main(){\n"
-			"gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);"
-			"\n"
-		"}"
-	};
-
-	// A fragment shader that assigns a static color
-	static const GLchar* fragment_shader_source[] = {
-		"#version 330\n"
-		"\n"
-		"out vec4 color;\n"
-		"uniform vec4 triangleColor;\n"
-		"void main(){\n"
-			"color = triangleColor;\n"
-		"}"
-	};
-
-
-	void init()
-	{
-		//Inicialitzar ID del Shader 
-		GLuint vertex_shader;
-		GLuint fragment_shader;
-
-		//Crear ID Shader 
-		vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-		fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-
-		//Cargar datos del Shader en la ID
-		glShaderSource(vertex_shader, 1, vertex_shader_source, NULL);
-		glShaderSource(fragment_shader, 1, fragment_shader_source, NULL);
-
-		//Operar con el Shader -> Pilla la string que te paso y traducelo a binario
-		compileShader(vertex_shader_source[0], GL_VERTEX_SHADER, "vertex");
-		compileShader(fragment_shader_source[0], GL_FRAGMENT_SHADER, "fragment");
-
-		//Crear programa y enlazarlo con los Shaders (Operaciones Bind())
-		program = glCreateProgram();
-		glAttachShader(program, vertex_shader);
-		glAttachShader(program, fragment_shader);
-
-		linkProgram(program);
-
-		// Destroy
-		glDeleteShader(vertex_shader);
-		glDeleteShader(fragment_shader);
-
-		//Create the vertex array object
-		//This object maintains the state related to the input of the OpenGL
-		glGenVertexArrays(1, &VAO);
-		glBindVertexArray(VAO);
-
-		// Create the vertext buffer object
-		// It contains arbitrary data for the vertices. (coordinates)
-		glGenBuffers(1, &VBO);
-
-		// Until we bind another buffer, calls related 
-		// to the array buffer will use VBO
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-		// Copy the data to the array buffer
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-		// Specify the layout of the arbitrary data setting
-		glVertexAttribPointer(
-			0,					// Set same as specified in the shader
-			3,					// Size of the vertex attribute
-			GL_FLOAT,			// Specifies the data type of each component in the array
-			GL_FALSE,			// Data needs to be normalized? (NO)
-			3 * sizeof(float),	// Stride; byte offset between consecutive vertex attributes
-			(void*)0			// Offset of where the position data begins in the buffer
-		);
-
-		// Once specified, we enable it
-		glEnableVertexAttribArray(0);
-
-		// Clean
-		glBindVertexArray(0);
-	}
-
-	void cleanup()
-	{
-		glDeleteProgram(program);
-		glDeleteVertexArrays(1, &VAO);
-		glDeleteBuffers(1, &VBO);
-	}
-
-	void render()
-	{
-		glPointSize(40.0f);
-		glBindVertexArray(VAO);
-		glUseProgram(program);
-
-		time_t currentTime = SDL_GetTicks() / 1000;
-		const GLfloat color[] = { (float)sin(currentTime) * 0.5f + 0.5f, (float)cos(currentTime) * 0.5f + 0.5f, 0.0f, 1.0f };
-
-		glUniform4f(glGetUniformLocation(program, "triangleColor"), color[0], color[1], color[2], color[3]);
-
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-		//glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-		//glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-		//glDrawArrays(GL_QUADS, 0, 4);
-		//glDrawArrays(GL_LINE_LOOP, 0, 4);
-		//glDrawArrays(GL_LINES, 0, 3);
-		//glDrawArrays(GL_LINE_STRIP, 0, 6);
 	}
 }
 
