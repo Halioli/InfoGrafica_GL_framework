@@ -140,12 +140,12 @@ void linkProgram(GLuint program)
 namespace Object
 {
 	Shader billboardShader("object_vertexShader.vs", "object_fragmentShader.fs", "object_geometryShader.gs", "OscarCaco_Head.png", true);
-	Shader cubeShader("cube_vertexShader.vs", "cube_fragmentShader.fs", "cube_geometryShader.gs", "red.png", false);
-	Shader explodingShader("exploding_vertexShader.vs", "exploding_fragmentShader.fs", "exploding_geometryShader.gs", "tnt.png", true);
+	Shader cubeShader("cube_vertexShader.vs", "cube_fragmentShader.fs", "cube_geometryShader.gs", "wood.png", false);
+	Shader explodingShader("exploding_vertexShader.vs", "exploding_fragmentShader.fs", "exploding_geometryShader.gs", "Camaro_AlbedoTransparency_alt.png", true);
 
 	Model billboardModel("planeTest.obj");
 	Model cubeModel("newCube.obj");
-	Model explodingModel("newCube.obj");
+	Model explodingModel("Camaro.obj");
 
 	// this should be at the fragment shader
 	struct Material {
@@ -245,7 +245,7 @@ namespace Object
 		explodingShader.ActivateTexture();
 		
 		explodingModel.SetLocation(glm::vec3(0.f, 0.f, -30.f));
-		explodingModel.SetScale(glm::vec3(0.8f));
+		explodingModel.SetScale(glm::vec3(0.1f));
 		explodingModel.SetUniforms(explodingShader, RenderVars::_modelView, RenderVars::_MVP, time, fragColor);
 		
 		explodingModel.DrawArraysTriangles();
