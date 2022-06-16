@@ -24,7 +24,7 @@ public:
 	void SetScale(glm::vec3 newScale);
 	void SetLocation(glm::vec3 newLocation);
 	void SetUniforms(Shader shader, glm::mat4 modelView, glm::mat4 MVP, glm::vec3 fragColor);
-	void SetUniforms(Shader shader, glm::mat4 modelView, glm::mat4 MVP, glm::vec4 cameraPoint, glm::vec3 fragColor);
+	void SetUniforms(Shader shader, glm::mat4 modelView, glm::mat4 MVP, glm::vec3 cameraPoint, glm::vec3 fragColor);
 	void SetUniforms(Shader shader, glm::mat4 modelView, glm::mat4 MVP, float &time, glm::vec3 fragColor);
 	
 	void DrawArraysTriangles();

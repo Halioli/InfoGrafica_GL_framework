@@ -78,7 +78,7 @@ void Model::SetUniforms(Shader shader, glm::mat4 modelView, glm::mat4 MVP, glm::
 	shader.SetUniformVector4("color", fragColor);
 }
 
-void Model::SetUniforms(Shader shader, glm::mat4 modelView, glm::mat4 MVP, glm::vec4 cameraPoint, glm::vec3 fragColor)
+void Model::SetUniforms(Shader shader, glm::mat4 modelView, glm::mat4 MVP, glm::vec3 cameraPoint, glm::vec3 fragColor)
 {
 	shader.SetUniformVector3("cameraPos", cameraPoint);
 

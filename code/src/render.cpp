@@ -139,9 +139,8 @@ void linkProgram(GLuint program)
 ////////////////////////////////////////////////// OBJECT
 namespace Object
 {
-	Shader billboardShader("object_vertexShader.vs", "object_fragmentShader.fs", "object_geometryShader.gs", "tnt.png", true);
-	Shader cubeShader("cube_vertexShader.vs", "cube_fragmentShader.fs", "cube_geometryShader.gs", "wood.png", false);
-	Shader cubeBorderShader("cube_vertexShader.vs", "cube_fragmentShader.fs", "cube_geometryShader.gs", "red.png", false);
+	Shader billboardShader("object_vertexShader.vs", "object_fragmentShader.fs", "object_geometryShader.gs", "OscarCaco_Head.png", true);
+	Shader cubeShader("cube_vertexShader.vs", "cube_fragmentShader.fs", "cube_geometryShader.gs", "red.png", false);
 	Shader explodingShader("exploding_vertexShader.vs", "exploding_fragmentShader.fs", "exploding_geometryShader.gs", "tnt.png", true);
 
 	Model billboardModel("planeTest.obj");
@@ -178,7 +177,6 @@ namespace Object
 		//Inicialitzar el Shader 
 		billboardShader.CreateAllShaders();
 		cubeShader.CreateAllShaders();
-		cubeBorderShader.CreateAllShaders();
 		explodingShader.CreateAllShaders();
 
 		//Create the vertex array object
@@ -189,7 +187,6 @@ namespace Object
 		// Texture
 		billboardShader.GenerateTexture();
 		cubeShader.GenerateTexture();
-		cubeBorderShader.GenerateTexture();
 		explodingShader.GenerateTexture();
 
 		// Clean
@@ -200,7 +197,6 @@ namespace Object
 	{
 		billboardShader.DeleteProgram();
 		cubeShader.DeleteProgram();
-		cubeBorderShader.DeleteProgram();
 		explodingShader.DeleteProgram();
 
 		billboardModel.Cleanup();
@@ -210,8 +206,9 @@ namespace Object
 
 	void render()
 	{
-		glm::vec4 fragColor;
-		fragColor = glm::vec4(5.f, 5.f, 5.f, 1.0f);
+		glm::vec4 fragColor = glm::vec4(5.f, 5.f, 5.f, 1.0f);
+		glm::vec4 camPos = glm::inverse(RV::_modelView) * glm::vec4(0.f, 0.f, 0.f, 1.f);
+		glm::vec3 correctCamPos = glm::vec3(camPos.x, camPos.y, camPos.z);
 		float time = ImGui::GetTime();
 
 		// == BILLBOARD ==
@@ -221,40 +218,23 @@ namespace Object
 		// Texture
 		billboardShader.ActivateTexture();
 
-		billboardModel.SetUniforms(billboardShader, RenderVars::_modelView, RenderVars::_MVP, RenderVars::_cameraPoint, fragColor);
+		billboardModel.SetUniforms(billboardShader, RenderVars::_modelView, RenderVars::_MVP, correctCamPos, fragColor);
 		
 		billboardModel.DrawArraysPoints();
 		// == ==
 
 		// == CUBE ==
-		glEnable(GL_STENCIL_TEST);
-		glClear(GL_STENCIL_BUFFER_BIT);
-		glStencilFunc(GL_ALWAYS, 1, 0xff);
-		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-		glStencilMask(0xff);
-
 		cubeShader.UseProgram();
 		cubeModel.BindVertex();
 
 		// Texture
 		cubeShader.ActivateTexture();
 
+		cubeModel.SetLocation(glm::vec3(0.f, -4.f, 0.f));
 		cubeModel.SetScale(glm::vec3(0.3f));
 		cubeModel.SetUniforms(cubeShader, RenderVars::_modelView, RenderVars::_MVP, fragColor);
 		
 		cubeModel.DrawArraysTriangles();
-
-		glStencilFunc(GL_GREATER, 1, 0xff);
-		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-
-		cubeBorderShader.UseProgram();
-		cubeModel.BindVertex();
-		cubeBorderShader.ActivateTexture();
-		cubeModel.SetScale(glm::vec3(0.35f));
-		cubeModel.SetUniforms(cubeShader, RenderVars::_modelView, RenderVars::_MVP, fragColor);
-		cubeModel.DrawArraysTriangles();
-
-		glDisable(GL_STENCIL_TEST);
 		// == ==
 
 		// == EXPLODING ==
